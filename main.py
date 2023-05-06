@@ -14,6 +14,7 @@ ua = UserAgent()
 
 url = input("Enter the URL of the Apple Music playlist: ")
 
+
 response = requests.get(url, headers={'User-Agent': ua.random})
 
 if response.status_code == 200:
@@ -23,9 +24,12 @@ if response.status_code == 200:
     song_name_divs = soup.select('div.songs-list-row__song-name')
     song_names = [div.text.strip() for div in song_name_divs]
 
+    song_artist_divs = soup.select('div.songs-list-row__by-line')
+    song_artists = [div.select_one('a').text.strip() if div.select_one('a') else '' for div in song_artist_divs]
+
     song_uris = []
-    for song_name in song_names:
-        results = sp.search(q=song_name, type='track', limit=1)
+    for i, song_name in enumerate(song_names):
+        results = sp.search(q=song_name + ' ' + song_artists[i], type='track', limit=1)
         if results and len(results['tracks']['items']) > 0:
             song_uri = results['tracks']['items'][0]['uri']
             song_uris.append(song_uri)
